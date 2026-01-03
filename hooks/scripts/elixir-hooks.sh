@@ -1,6 +1,6 @@
 #!/bin/bash
 # Elixir development hooks for Claude Code
-# Handles: formatting, linting, testing
+# Fast-only hooks - heavy commands shown as hints
 
 set -o pipefail
 
@@ -14,26 +14,19 @@ ext="${file_path##*.}"
 
 case "$ext" in
     ex|exs)
-        # Mix format (formatting)
+        # Mix format (fast - single file)
         if command -v mix >/dev/null 2>&1; then
             mix format "$file_path" 2>/dev/null || true
         fi
 
-        # Credo (linting)
-        if command -v mix >/dev/null 2>&1; then
-            mix credo "$file_path" --strict 2>/dev/null || true
-        fi
-
-        # Dialyzer (static analysis) - run on directory
-        # if command -v mix >/dev/null 2>&1; then
-        #     mix dialyzer 2>/dev/null || true
-        # fi
-
-        # Surface TODO/FIXME comments
+        # TODO/FIXME check (fast - grep only)
         grep -n -E '(TODO|FIXME|HACK|XXX|BUG):' "$file_path" 2>/dev/null || true
+
+        # Hints for on-demand commands
+        echo "💡 mix credo --strict && mix test"
         ;;
     eex|heex|leex)
-        # Format templates
+        # Format templates (fast - single file)
         if command -v mix >/dev/null 2>&1; then
             mix format "$file_path" 2>/dev/null || true
         fi
